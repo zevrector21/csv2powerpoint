@@ -26,12 +26,13 @@ Load data, images, audio and video into Powerpoint slides using python
 <https://docs.google.com/document/d/1lK88kGAeDpTva42BTo3_ua1LmjaGhS4jR6iTJ1w-hlc/edit?usp=sharing>
 
 
-## Common Fixes when settign up a machine
+## Common Fixes when setting up a machine
 *  Save your own screenshot for the save button
     - You need to do this if LibreOffice isn't finding a save button
     - After doing this you may still have to check 'always save' the first time
     - You may need to go to the progam and back to your terminal when running
 
+Mac/Linux
 * Linux, the program was not able to read the path  os.path.exists('inputs\save.png')  [Missing file save.png error (resolved)]
     - This needs changed to be:  `os.path.exists('inputs/save.png')` in every file. 
 
