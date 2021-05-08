@@ -32,8 +32,12 @@ import png
 import pyqrcode
 
 from PIL import Image, ExifTags
+import pdb
 
 # ----------------------------- Setup Vars ---------------------------------
+
+DEBUG_MODE = False
+
 slide_template = 'inputs/Demo Template.pptx'
 
 csv_filename = 'inputs/Demo.csv'
@@ -86,6 +90,10 @@ SUBTEXT_SPACE_BEFORE = 10
 SUBTEXT_SPACE_AFTER = 0
 MOVE_SUBTEXT_UP = False
 
+HAS_DESCRIPTION = True
+DESC_TITLE_COL = 8 
+DESC_BIDY_COL = 9
+
 STUDENT_ID = 0
 FULLNAME_COL = 1
 
@@ -100,9 +108,9 @@ AUDIO_COL = 6
 IMAGE_COL = 7
 
 QUOTE_COL = ""
-# QUOTE_FONT = "Calibri" 
-# QUOTE_FONT_SIZE = 24
-MEASURE_QUOTE_HEIGHT = False
+QUOTE_FONT = "Calibri" 
+QUOTE_FONT_SIZE = 24
+MEASURE_QUOTE_HEIGHT = True
 
 REMOVE_BLANK_IMAGE_PLACEHOLDER = False
 MISSING_IMAGE_REPLACEMENT = "inputs/3x4_person_placeholder.png"
@@ -110,7 +118,7 @@ USE_FULL_RECT_IMAGE = True
 RESIZE_VIDEO = True
 
 STUDENT_SLIDE_LAYOUT_NUM = 1 # Static value or first layout to start iterator at for multi layouts
-MULTI_LAYOUT_END_NUM = 2 # Used to iterate or flip layouts starting at STUDENT_SLIDE_LAYOUT_NUM
+MULTI_LAYOUT_END_NUM = 1 # Used to iterate or flip layouts starting at STUDENT_SLIDE_LAYOUT_NUM
 
 CREATE_TOC_SLIDE = False
 CREATE_TITLE_SLIDES = True
@@ -119,7 +127,8 @@ TOC_SLIDE_LAYOUT_NUM = 3
 HAS_TITLE_SLIDE_AUDIO = False
 TITLE_SLIDE_AUDIO_FOLDER = ""
 
-AUTO_ADVANCE_SLIDE = True
+# AUTO_ADVANCE_SLIDE = True
+AUTO_ADVANCE_SLIDE = False
 AUTO_PLAY_AUDIO = True
 AUTO_PLAY_VIDEO = True
 DEFAULT_SLIDE_DURATION = 4000 # For no audio slides (ms)
@@ -537,7 +546,10 @@ if MEASURE_NAME_LENGTHS:
             if cmd == "n":
                 sys.exit(0)
         else:
-            cmd = input('Name lengths file found, do you want to recalculate? (y/n/q)\n')
+            if DEBUG_MODE:
+                cmd = "n"
+            else:
+                cmd = input('Name lengths file found, do you want to recalculate? (y/n/q)\n')
             if cmd == "n":
                 with open(temp_csv_filename, 'r', encoding='UTF-8', newline='') as f:
                     reader = csv.DictReader(f)
@@ -559,7 +571,10 @@ if MEASURE_ACCOMP_LENGTHS:
             if cmd == "n":
                 sys.exit(0)
         else:
-            cmd = input('Accomplishment lengths file found, do you want to recalculate? (y/n/q)\n')
+            if DEBUG_MODE:
+                cmd = "n"
+            else:
+                cmd = input('Name lengths file found, do you want to recalculate? (y/n/q)\n')
             if cmd == "n":
                 with open(temp_csv_filename, 'r', encoding='UTF-8', newline='') as f:
                     reader = csv.DictReader(f)
@@ -581,7 +596,10 @@ if MEASURE_QUOTE_HEIGHT:
             if cmd == "n":
                 sys.exit(0)
         else:
-            cmd = input('Quote heights file found, do you want to recalculate? (y/n/q)\n')
+            if DEBUG_MODE:
+                cmd = "n"
+            else:
+                cmd = input('Name lengths file found, do you want to recalculate? (y/n/q)\n')
             if cmd == "n":
                 # csv_filename = temp_csv_filename
                 with open(temp_csv_filename, 'r', encoding='UTF-8', newline='') as f:
@@ -601,6 +619,7 @@ prs = Presentation(slide_template)
 prs_height = prs.slide_height/emus_per_inch
 prs_width = prs.slide_width/emus_per_inch
 px_per_inch = round(1920 / prs_width)
+
 
 with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
     print(bcolors.WARNING + 'Opening: ' + csv_filename + bcolors.ENDC)
@@ -949,7 +968,7 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                             run = new_link_p.add_run()
                             run.text = title_text
                             font = run.font
-                            font.size = Pt(14)
+                            # font.size = Pt(14)
                             font.underline = True
                             font.color.rgb = RGBColor(255, 255, 255)
                             new_link_p.alignment = PP_ALIGN.CENTER
@@ -988,6 +1007,7 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                 # *** Match Placeholders Here ***
                 name = slide.placeholders[0]
                 subtext = slide.placeholders[1]
+
                 # if row[QUOTE_COL] != "":
                 #     quote = slide.placeholders[13]
 
@@ -1016,11 +1036,17 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                         # else:
                         #     warnings_list.append(str(slide_count) + ": " + row[FULLNAME_COL] + " - Shrinking Name - Size:" + str(new_font_size) + "pt")
 
-                        font.size = Pt(new_font_size)
+                        # font.size = Pt(new_font_size)
                     else:
                         name.text = row[FULLNAME_COL]
                 else:
                     name.text = row[FULLNAME_COL]
+
+                if HAS_DESCRIPTION:
+                    description_title = slide.placeholders[11]
+                    description_body = slide.placeholders[12]
+                    description_title.text = row[DESC_TITLE_COL]
+                    description_body.text = row[DESC_BIDY_COL]
 
                 # call_time('ACCOMP Placeholder')
                 if HAS_ACCOMPLISHMENTS:
@@ -1077,18 +1103,18 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                             subtext_p2 = subtext.text_frame.add_paragraph()
                             subtext_p2.text = broken_word[1]
                             subtext_p2_font = subtext_p2.font
-                            subtext_p2_font.size = Pt(new_font_size)
+                            # subtext_p2_font.size = Pt(new_font_size)
                             subtext_p2.level = 1
                             lines_needed += 2
                         else:
                             subtext_p.text = accomplishments[0]
                             lines_needed += 1
                         
-                        subtext_p_font = subtext_p.font
-                        subtext_p_font.size = Pt(new_font_size)
-                        subtext_p.line_spacing = SUBTEXT_LINE_SPACING
-                        subtext_p.space_before = Pt(SUBTEXT_SPACE_BEFORE)
-                        subtext_p.space_after = Pt(SUBTEXT_SPACE_AFTER)
+                        # subtext_p_font = subtext_p.font
+                        # subtext_p_font.size = Pt(new_font_size)
+                        # subtext_p.line_spacing = SUBTEXT_LINE_SPACING
+                        # subtext_p.space_before = Pt(SUBTEXT_SPACE_BEFORE)
+                        # subtext_p.space_after = Pt(SUBTEXT_SPACE_AFTER)
 
                         print(accomplishments[0])
 
@@ -1103,18 +1129,18 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                                 p2 = subtext.text_frame.add_paragraph()
                                 p2.text = broken_word[1]
                                 p2_font = p2.font
-                                p2_font.size = Pt(new_font_size)
+                                # p2_font.size = Pt(new_font_size)
                                 p2.level = 1
                                 lines_needed += 2
                             else:
                                 p.text = para_str
                                 lines_needed += 1
                             
-                            p_font = p.font
-                            p_font.size = Pt(new_font_size)
-                            p.line_spacing = SUBTEXT_LINE_SPACING
-                            p.space_before = Pt(SUBTEXT_SPACE_BEFORE)
-                            p.space_after = Pt(SUBTEXT_SPACE_AFTER)
+                            # p_font = p.font
+                            # p_font.size = Pt(new_font_size)
+                            # p.line_spacing = SUBTEXT_LINE_SPACING
+                            # p.space_before = Pt(SUBTEXT_SPACE_BEFORE)
+                            # p.space_after = Pt(SUBTEXT_SPACE_AFTER)
                             # p_font.bold = True
                             # p_font.italic = None
                             # p_font.color.theme_color = MSO_THEME_COLOR.ACCENT_1
