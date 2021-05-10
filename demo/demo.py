@@ -36,7 +36,7 @@ import pdb
 
 # ----------------------------- Setup Vars ---------------------------------
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 slide_template = 'inputs/Demo Template.pptx'
 
@@ -90,14 +90,16 @@ SUBTEXT_SPACE_BEFORE = 10
 SUBTEXT_SPACE_AFTER = 0
 MOVE_SUBTEXT_UP = False
 
-HAS_DESCRIPTION = True
-DESC_TITLE_COL = 8 
-DESC_BIDY_COL = 9
+HAS_HONORS = True
+HONORS_COL = 4
+
+HAS_MAJOR = True
+MAJOR_COL = 2
 
 STUDENT_ID = 0
 FULLNAME_COL = 1
 
-HAS_ACCOMPLISHMENTS = True
+HAS_ACCOMPLISHMENTS = False
 ACCOMP_TO_TRACK = 2 # Useful for splitting, title slides, etc. Accomp number, not column number.
 
 ACCOMPLISH_1_COL = 2 # Degree
@@ -1042,17 +1044,19 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                 else:
                     name.text = row[FULLNAME_COL]
 
-                if HAS_DESCRIPTION:
-                    description_title = slide.placeholders[11]
-                    description_body = slide.placeholders[12]
-                    description_title.text = row[DESC_TITLE_COL]
-                    description_body.text = row[DESC_BIDY_COL]
+                if HAS_HONORS:
+                    honors = slide.placeholders[11]
+                    honors.text = row[HONORS_COL]
+
+                if HAS_MAJOR:
+                    subtext.text = row[MAJOR_COL]
 
                 # call_time('ACCOMP Placeholder')
                 if HAS_ACCOMPLISHMENTS:
                     accomp_lines = []
                     for accomp in range(accomp_min, accomp_max + 1):
                         accomp_lines.append(row[locals()['ACCOMPLISH_' + str(accomp) + '_COL']])
+
                     accomplishments = list(filter(None, accomp_lines))
 
                     if MEASURE_ACCOMP_LENGTHS and len(accomplishments) > 0:
