@@ -96,6 +96,9 @@ HONORS_COL = 4
 HAS_MAJOR = True
 MAJOR_COL = 2
 
+HAS_STATEMENT = True
+STATEMENT_COL = 8
+
 STUDENT_ID = 0
 FULLNAME_COL = 1
 
@@ -1044,9 +1047,9 @@ with open(csv_filename, 'r', encoding='UTF-8', newline='') as csv_file:
                 else:
                     name.text = row[FULLNAME_COL]
 
-                if HAS_HONORS:
-                    honors = slide.placeholders[11]
-                    honors.text = row[HONORS_COL]
+                if HAS_STATEMENT:
+                    statement = slide.placeholders[11]
+                    statement.text = row[STATEMENT_COL]
 
                 if HAS_MAJOR:
                     subtext.text = row[MAJOR_COL]
